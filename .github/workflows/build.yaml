@@ -26,5 +26,6 @@ jobs:
         if: steps.cache-check-nodemodules.outputs.cache-hit != 'true'
         run: npm ci
       
-      - run: docker build --cache-to mode=max,image-manifest=true,oci-mediatypes=true,type=registry,ref=357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:cache --cache-from 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:cache -t 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:latest .
+      - run: docker build --cache-from 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:cache -t 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:latest .
+      # --cache-to mode=max,image-manifest=true,oci-mediatypes=true,type=registry,ref=357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:cache
       - run: docker push 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:latest
