@@ -15,15 +15,15 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v4
 
-      - name: Cache node_modules
-        id: cache-nodemodules
+      - name: Cache Check - node_modules
+        id: cache-check-nodemodules
         uses: actions/cache@v4
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
       
-      - name: Install Dependencies
-        if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+      - name: NPM CI
+        if: steps.cache-check-nodemodules.outputs.cache-hit != 'true'
         run: npm ci
 
       - name: Docker Setup
@@ -42,7 +42,7 @@ jobs:
         with:
           context: .
           # cache-to: mode=max,image-manifest=true,oci-mediatypes=true,type=registry,ref=357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:cache
-          cache-from: type=registry,ref=357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:cache .
+          cache-from: 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:cache
           file: ./Dockerfile
           push: true
           tags: 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:cache
