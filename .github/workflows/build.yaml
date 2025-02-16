@@ -10,6 +10,7 @@ jobs:
   build-and-deploy-node:
     runs-on:
       - codebuild-github-action-${{ github.run_id }}-${{ github.run_attempt }}
+      - buildspec-override:true
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
