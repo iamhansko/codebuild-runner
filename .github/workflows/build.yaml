@@ -30,7 +30,7 @@ jobs:
         id: set-vars
         run: |
           BRANCH_NAME="${{ github.head_ref || github.ref_name }}"
-          if [[ $BRANCH_NAME =~ .*-c-([0-9]+)$ ]]; then
+          if [[ $BRANCH_NAME == "main" ]]; then
             echo "VALID_BRANCH=true" >> $GITHUB_OUTPUT
             SUFFIX="${BASH_REMATCH[1]}"
             echo "IMAGE_TAG=pr${SUFFIX}" >> $GITHUB_OUTPUT
