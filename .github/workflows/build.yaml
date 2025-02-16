@@ -40,4 +40,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: sce06147/codebuild:${{github.run_id}}
+          tags: 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:latest
