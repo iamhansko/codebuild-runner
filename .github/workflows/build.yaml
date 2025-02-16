@@ -25,9 +25,20 @@ jobs:
         if: steps.cache-check-nodemodules.outputs.cache-hit != 'true'
         run: npm ci
 
-      - run: |
+      - name: Docker Setup
+        uses: docker/setup-buildx-action@v3
+
+      - name: ECR Setup
+        run: |
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 357491204644.dkr.ecr.us-east-1.amazonaws.com
-          docker pull 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:latest || true
-      - run: docker build --cache-from 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:latest -t 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:latest .
-      #--cache-to mode=max,image-manifest=true,oci-mediatypes=true,type=registry,ref=357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:cache
-      - run: docker push 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:latest
+      
+      - name: Docker Build and Push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          cache-to: mode=max,image-manifest=true,oci-mediatypes=true,type=registry,ref=357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:cache
+          cache-from: 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:cache
+          file: ./Dockerfile
+          push: true
+          tags: 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:cache
+          
