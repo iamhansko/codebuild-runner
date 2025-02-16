@@ -20,7 +20,7 @@ env:
 
 jobs:
   check-domain-creation:
-    runs-on: linux
+    runs-on: ubuntu-latest
     outputs:
       IMAGE_TAG: ${{ steps.set-vars.outputs.IMAGE_TAG }}
       PRN: ${{ steps.set-vars.outputs.PRN }}
