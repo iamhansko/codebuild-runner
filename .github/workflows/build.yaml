@@ -25,7 +25,10 @@ jobs:
       - name: NPM CI
         if: steps.cache-check-nodemodules.outputs.cache-hit != 'true'
         run: npm ci
-      
-      - run: docker build --cache-from 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:cache -t 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:latest .
+
+      - run: |
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 357491204644.dkr.ecr.us-east-1.amazonaws.com
+          docker pull 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:cache || true
+      - run: docker build --cache-from 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:latest -t 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:latest .
       #--cache-to mode=max,image-manifest=true,oci-mediatypes=true,type=registry,ref=357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:cache
       - run: docker push 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:latest
