@@ -25,13 +25,13 @@ jobs:
       - name: ECR Setup
         run: |
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 357491204644.dkr.ecr.us-east-1.amazonaws.com
-          docker pull 357491204644.dkr.ecr.us-east-1.amazonaws.com/aml2023-nodejs:latest
+          docker pull 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:latest
       
       - name: Docker Build and Push
         uses: docker/build-push-action@v6
         with:
           context: .
-          cache-from: 357491204644.dkr.ecr.us-east-1.amazonaws.com/aml2023-nodejs:latest
+          cache-from: 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:latest
           file: ./Dockerfile
           push: true
           tags: 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:${{ github.run_id }}
