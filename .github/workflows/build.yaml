@@ -13,13 +13,6 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
-      
-      # - name: Configure AWS credentials
-      #   uses: aws-actions/configure-aws-credentials@v4
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws-region: ${{ secrets.AWS_REGION }}
 
       - name: NPM Install
         run: |
@@ -31,6 +24,7 @@ jobs:
       - name: Configure Docker with ECR credentials
         run: |
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 357491204644.dkr.ecr.us-east-1.amazonaws.com
+          docker pull 357491204644.dkr.ecr.us-east-1.amazonaws.com/aml2023-nodejs:latest
       
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
@@ -39,4 +33,4 @@ jobs:
           cache-from: 357491204644.dkr.ecr.us-east-1.amazonaws.com/aml2023-nodejs:latest
           file: ./Dockerfile
           push: true
-          tags: 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:latest
+          tags: 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:${{ github.run_id }}
