@@ -3,15 +3,13 @@ FROM 357491204644.dkr.ecr.us-east-1.amazonaws.com/aml2023-nodejs:latest AS base
 FROM base AS builder
 WORKDIR /app
 COPY . .
-RUN npm run build
+RUN --mount=type=cache,target=/app/.next/cache npm run build
 
 FROM base AS runner
 WORKDIR /app
-
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/.next/cache ./.next/cache
 
 EXPOSE 3000
 
