@@ -5,8 +5,6 @@ WORKDIR /app
 
 COPY . .
 
-RUN sleep 120
-
 RUN --mount=type=cache,target=/app/.next/cache npm run build
 
 EXPOSE 3000
