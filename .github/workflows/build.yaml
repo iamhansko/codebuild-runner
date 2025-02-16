@@ -1,0 +1,48 @@
+name: pull
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+  PR_REPOSITORY: ${{ vars.PR_REPOSITORY }}
+  REPOSITORY: ${{ vars.REPOSITORY }}
+  ENV_USE: ${{ vars.ENV_USE }}
+  DEV_ENV_PARAMETER: ${{ vars.DEV_ENV_PARAMETER }}
+  PRD_ENV_PARAMETER: ${{ vars.PRD_ENV_PARAMETER }}
+  AMPLIFY_USE: ${{ vars.AMPLIFY_USE }}
+  AMPLIFY_PARAMETER: ${{ vars.AMPLIFY_PARAMETER }}
+  MOBILE_APP: ${{ vars.MOBILE_APP }}
+  NODE: ${{ vars.NODE }}
+
+jobs:
+  check-domain-creation:
+    runs-on: [self-hosted, linux]
+    outputs:
+      IMAGE_TAG: ${{ steps.set-vars.outputs.IMAGE_TAG }}
+      PRN: ${{ steps.set-vars.outputs.PRN }}
+      VALID_BRANCH: ${{ steps.set-vars.outputs.VALID_BRANCH }}
+    steps:
+      - name: Set variables
+        id: set-vars
+        run: |
+          BRANCH_NAME="${{ github.head_ref || github.ref_name }}"
+          if [[ $BRANCH_NAME =~ .*-c-([0-9]+)$ ]]; then
+            echo "VALID_BRANCH=true" >> $GITHUB_OUTPUT
+            SUFFIX="${BASH_REMATCH[1]}"
+            echo "IMAGE_TAG=pr${SUFFIX}" >> $GITHUB_OUTPUT
+            echo "PRN=pr${SUFFIX}" >> $GITHUB_OUTPUT
+          else
+            echo "VALID_BRANCH=false" >> $GITHUB_OUTPUT
+            echo "IMAGE_TAG=" >> $GITHUB_OUTPUT
+            echo "PRN=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Display variables
+        run: |
+          echo "VALID_BRANCH: ${{ steps.set-vars.outputs.VALID_BRANCH }}"
+          echo "IMAGE_TAG: ${{ steps.set-vars.outputs.IMAGE_TAG }}"
+          echo "PRN: ${{ steps.set-vars.outputs.PRN }}"
