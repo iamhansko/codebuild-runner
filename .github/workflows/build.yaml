@@ -78,7 +78,6 @@ jobs:
                 const lastCommit = filteredCommits[filteredCommits.length - 1];
                 lastCommitMessage = lastCommit.commit.message;
               } else {
-                 // 풀 리퀘스트가 아닌 경우, 마지막 커밋 메시지를 직접 가져옵니다.
                 const { data: commits } = await github.rest.repos.listCommits({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
