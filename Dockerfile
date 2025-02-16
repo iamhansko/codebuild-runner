@@ -1,4 +1,4 @@
-FROM 357491204644.dkr.ecr.us-east-1.amazonaws.com/aml2023-nodejs:latest as base
+FROM 357491204644.dkr.ecr.us-east-1.amazonaws.com/aml2023-nodejs:latest AS base
 
 FROM base AS builder
 WORKDIR /app
