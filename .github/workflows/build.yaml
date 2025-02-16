@@ -15,9 +15,16 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v4
 
-      - name: NPM Install
-        run: |
-          npm install
+      - name: Cache node_modules
+        id: cache-nodemodules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+      
+      - name: Install Dependencies
+        if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+        run: npm ci
 
       - name: Docker Setup
         uses: docker/setup-buildx-action@v3
