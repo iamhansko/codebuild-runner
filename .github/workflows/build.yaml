@@ -10,7 +10,7 @@ jobs:
   build-and-deploy-node:
     runs-on:
       - codebuild-github-action-${{ github.run_id }}-${{ github.run_attempt }}
-      - buildspec-override:true
+      # - buildspec-override:true
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
@@ -20,7 +20,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
       
       - name: NPM CI
         if: steps.cache-check-nodemodules.outputs.cache-hit != 'true'
@@ -41,8 +41,8 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          # cache-to: mode=max,image-manifest=true,oci-mediatypes=true,type=registry,ref=357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:cache
+          cache-to: mode=max,image-manifest=true,oci-mediatypes=true,type=registry,ref=357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:cache
           cache-from: 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:cache
           file: ./Dockerfile
           push: true
-          tags: 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:cache
+          tags: 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:latest
