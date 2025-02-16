@@ -1,4 +1,4 @@
-name: pull
+name: test
 
 on:
   push:
@@ -6,90 +6,32 @@ on:
   pull_request:
     branches: [ "main" ]
 
-env:
-  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
-  PR_REPOSITORY: ${{ vars.PR_REPOSITORY }}
-  REPOSITORY: ${{ vars.REPOSITORY }}
-  ENV_USE: ${{ vars.ENV_USE }}
-  DEV_ENV_PARAMETER: ${{ vars.DEV_ENV_PARAMETER }}
-  PRD_ENV_PARAMETER: ${{ vars.PRD_ENV_PARAMETER }}
-  AMPLIFY_USE: ${{ vars.AMPLIFY_USE }}
-  AMPLIFY_PARAMETER: ${{ vars.AMPLIFY_PARAMETER }}
-  MOBILE_APP: ${{ vars.MOBILE_APP }}
-  NODE: ${{ vars.NODE }}
-
 jobs:
-  check-domain-creation:
-    runs-on: ubuntu-latest
-    outputs:
-      IMAGE_TAG: ${{ steps.set-vars.outputs.IMAGE_TAG }}
-      PRN: ${{ steps.set-vars.outputs.PRN }}
-      VALID_BRANCH: ${{ steps.set-vars.outputs.VALID_BRANCH }}
-    steps:
-      - name: Set variables
-        id: set-vars
-        run: |
-          BRANCH_NAME="${{ github.head_ref || github.ref_name }}"
-          if [[ $BRANCH_NAME == "main" ]]; then
-            echo "VALID_BRANCH=true" >> $GITHUB_OUTPUT
-            SUFFIX="main"
-            echo "IMAGE_TAG=pr${SUFFIX}" >> $GITHUB_OUTPUT
-            echo "PRN=pr${SUFFIX}" >> $GITHUB_OUTPUT
-          else
-            echo "VALID_BRANCH=false" >> $GITHUB_OUTPUT
-            echo "IMAGE_TAG=" >> $GITHUB_OUTPUT
-            echo "PRN=" >> $GITHUB_OUTPUT
-          fi
-      - name: Display variables
-        run: |
-          echo "VALID_BRANCH: ${{ steps.set-vars.outputs.VALID_BRANCH }}"
-          echo "IMAGE_TAG: ${{ steps.set-vars.outputs.IMAGE_TAG }}"
-          echo "PRN: ${{ steps.set-vars.outputs.PRN }}"
-
   build-and-deploy-node:
-    needs: check-domain-creation
-    if: |
-      needs.check-domain-creation.outputs.VALID_BRANCH == 'true'
     runs-on:
       - codebuild-github-action-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
       
-      - name: Get last commit message
-        id: get-last-commit
-        uses: actions/github-script@v6
+      # - name: Configure AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Configure Docker with ECR credentials
+        run: |
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 357491204644.dkr.ecr.us-east-1.amazonaws.com
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
         with:
-          github-token: ${{ secrets.ADMIN_TOKEN }}
-          script: |
-            let lastCommitMessage = '';
-            try {
-              if (context.payload.pull_request) {
-                const { owner, repo } = context.repo;
-                const prNumber = context.payload.pull_request.number;
-
-                const { data: commits } = await github.rest.pulls.listCommits({
-                  owner,
-                  repo,
-                  pull_number: prNumber
-                });
-
-                const filteredCommits = commits.filter(commit => !commit.commit.message.startsWith("Merge branch"));
-                const lastCommit = filteredCommits[filteredCommits.length - 1];
-                lastCommitMessage = lastCommit.commit.message;
-              } else {
-                const { data: commits } = await github.rest.repos.listCommits({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  sha: context.sha,
-                  per_page: 1
-                });
-                lastCommitMessage = commits[0].commit.message;
-              }
-
-              core.setOutput('last-commit-message', lastCommitMessage);
-              console.log(`Last commit message: ${lastCommitMessage}`);
-            } catch (error) {
-              console.error('Error fetching commit:', error);
-              core.setFailed(error.message);
-            }
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: sce06147/codebuild:${{github.run_id}}
