@@ -42,3 +42,4 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:latest
+          
