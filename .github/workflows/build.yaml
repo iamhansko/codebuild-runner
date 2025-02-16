@@ -40,4 +40,4 @@ jobs:
           cache-from: type=registry,ref=357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:cache
           file: ./Dockerfile
           push: true
-          tags: 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:cache
+          tags: 357491204644.dkr.ecr.us-east-1.amazonaws.com/nextjs:latest
